@@ -1,0 +1,55 @@
+def estimate_waiting_time(
+    avg_time_per_group: int,
+    num_tables: int,
+    num_employees: int,
+    queue_length: int,
+    groups_being_served: int
+) -> int:
+    """
+    Estimate waiting time for a restaurant based on several realistic constraints.
+
+    Parameters:
+    - avg_time_per_group (int): Average time each group stays at a table (in minutes).
+    - num_tables (int): Total number of tables available.
+    - num_employees (int): Number of employees working.
+    - queue_length (int): Total number of groups currently in the queue.
+    - groups_being_served (int): Number of groups already seated and being served.
+
+    Returns:
+    - Estimated waiting time in minutes for a new group arriving now.
+    """
+
+    if num_tables <= 0 or num_employees <= 0:
+        return float('inf')  # Restaurant can't serve anyone
+
+    # Each employee can handle a limited number of tables efficiently (assume 4)
+    MAX_TABLES_PER_EMPLOYEE = 4
+    effective_capacity = min(num_tables, num_employees * MAX_TABLES_PER_EMPLOYEE)
+
+    # Calculate how many new groups need to wait for a table
+    available_tables = effective_capacity - groups_being_served
+    if available_tables > 0:
+        # Immediate seating available
+        return 0
+
+    # Number of groups ahead in line waiting for a table
+    groups_waiting_ahead = queue_length
+
+    # Estimate how many full cycles it will take before a new table opens
+    # Each cycle is when a group finishes dining
+    cycles_needed = (groups_waiting_ahead // effective_capacity) + 1
+
+    estimated_wait = cycles_needed * avg_time_per_group
+    return estimated_wait
+
+
+# Example usage
+if __name__ == "__main__":
+    avg_time = 45               # Average time a group stays (in minutes)
+    tables = 10                 # Total tables
+    employees = 3               # Total employees
+    queue = 5                   # Number of groups waiting
+    seated_groups = 10          # All tables are full
+
+    wait_time = estimate_waiting_time(avg_time, tables, employees, queue, seated_groups)
+    print(f"Estimated wait time: {wait_time} minutes")
